@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BudgetFindr — India's Smartest Budget Shopping Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal: #00D4AA;
+    --teal2: #00A882;
+    --bg: #080E14;
+    --card: #0F1923;
+    --card2: #162030;
+    --text: #EDF2F7;
+    --muted: #6B8FAE;
+    --border: #1A2D40;
+    --orange: #FF6B2B;
+    --yellow: #FFD60A;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 6vw;
+    background: rgba(8,14,20,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--teal); }
+  .logo span { color: var(--text); }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--teal); }
+  .nav-cta { background: var(--teal); color: var(--bg); border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+  .nav-cta:hover { background: var(--teal2); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 120px 6vw 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-glow {
+    position: absolute; width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,170,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.3;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3);
+    color: var(--teal); padding: 8px 18px; border-radius: 99px;
+    font-size: 13px; font-weight: 600; margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif; font-size: clamp(36px, 7vw, 72px); font-weight: 800; line-height: 1.1;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 em { color: var(--teal); font-style: normal; }
+  .hero p {
+    font-size: clamp(15px, 2vw, 19px); color: var(--muted); max-width: 580px; line-height: 1.7;
+    margin-bottom: 40px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.6s 0.3s ease both; }
+  .btn-primary { background: var(--teal); color: var(--bg); border: none; padding: 16px 32px; border-radius: 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+  .btn-primary:hover { background: var(--teal2); transform: translateY(-2px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1.5px solid var(--border); padding: 16px 32px; border-radius: 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+  .btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* PLATFORMS */
+  .platforms {
+    display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap;
+    padding: 40px 6vw; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .platform-tag { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; font-weight: 600; }
+  .platform-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 80px 6vw; max-width: 900px; margin: 0 auto; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+  .stat-card:hover { transform: translateY(-4px); border-color: var(--teal); }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 44px; font-weight: 800; color: var(--teal); }
+  .stat-label { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  /* HOW IT WORKS */
+  .section { padding: 80px 6vw; max-width: 1000px; margin: 0 auto; }
+  .section-tag { color: var(--teal); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: clamp(28px, 4vw, 44px); font-weight: 800; margin-bottom: 48px; }
+  .section-title em { color: var(--teal); font-style: normal; }
+
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+  .step-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+  .step-card:hover { border-color: var(--teal); }
+  .step-num { font-family: 'Syne', sans-serif; font-size: 64px; font-weight: 800; color: rgba(0,212,170,0.08); position: absolute; top: 10px; right: 16px; line-height: 1; }
+  .step-icon { font-size: 32px; margin-bottom: 14px; }
+  .step-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .step-desc { color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+  /* FEATURES */
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .feature { background: var(--card2); border: 1px solid var(--border); border-radius: 18px; padding: 24px; display: flex; gap: 16px; align-items: flex-start; transition: border-color 0.2s; }
+  .feature:hover { border-color: var(--teal); }
+  .feature-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(0,212,170,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .feature-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .feature-desc { color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+  /* PRODUCT MOCKUP */
+  .mockup { background: var(--card); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; max-width: 420px; margin: 0 auto; box-shadow: 0 40px 80px rgba(0,0,0,0.5); }
+  .mockup-header { background: #0D2137; padding: 16px 20px; }
+  .mockup-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--teal); }
+  .mockup-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .mockup-body { padding: 16px; }
+  .mockup-product { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
+  .mockup-ribbon { background: var(--teal); padding: 5px 14px; font-size: 11px; font-weight: 700; color: var(--bg); display: flex; justify-content: space-between; }
+  .mockup-inner { padding: 12px; display: flex; gap: 12px; align-items: center; }
+  .mockup-emoji { width: 44px; height: 44px; border-radius: 10px; background: rgba(0,212,170,0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .mockup-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; }
+  .mockup-price { color: var(--teal); font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-top: 2px; }
+  .mockup-platforms { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .mockup-tag { font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+
+  /* AUDIENCE */
+  .audience-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+  .audience-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 24px; text-align: center; transition: all 0.2s; }
+  .audience-card:hover { border-color: var(--teal); transform: translateY(-3px); }
+  .audience-icon { font-size: 36px; margin-bottom: 12px; }
+  .audience-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .audience-desc { color: var(--muted); font-size: 13px; }
+
+  /* CTA SECTION */
+  .cta-section {
+    margin: 0 6vw 80px; border-radius: 28px; padding: 60px 40px; text-align: center;
+    background: linear-gradient(135deg, rgba(0,212,170,0.12) 0%, rgba(0,168,130,0.06) 100%);
+    border: 1px solid rgba(0,212,170,0.2);
+    position: relative; overflow: hidden;
+  }
+  .cta-glow { position: absolute; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(0,212,170,0.15) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+  .cta-title { font-family: 'Syne', sans-serif; font-size: clamp(24px, 4vw, 40px); font-weight: 800; margin-bottom: 16px; position: relative; }
+  .cta-sub { color: var(--muted); font-size: 16px; margin-bottom: 32px; position: relative; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 40px 6vw; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 16px; }
+  .footer-logo { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--teal); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--teal); }
+  .footer-copy { color: var(--muted); font-size: 12px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .stats .stat-card:last-child { grid-column: span 2; }
+    footer { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Budget<span>Findr</span></div>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#audience">Who It's For</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('app').scrollIntoView({behavior:'smooth'})">Try App →</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="badge">🇮🇳 Made for Indian Families</div>
+  <h1>Find the <em>Lowest Price</em><br/>Across Every Platform</h1>
+  <p>BudgetFindr compares prices from Amazon, Flipkart, Meesho & Myntra — so your family always gets the best deal on clothes, appliances, electronics & kitchen items.</p>
+  <div class="hero-btns">
+    <a href="#app" class="btn-primary">🛒 Try BudgetFindr Free</a>
+    <a href="#how" class="btn-secondary">See How It Works</a>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<div class="platforms">
+  <span style="color:var(--muted);font-size:13px;font-weight:600;">Comparing prices from</span>
+  <div class="platform-tag"><div class="platform-dot" style="background:#FF9900"></div> Amazon India</div>
+  <div class="platform-tag"><div class="platform-dot" style="background:#2874F0"></div> Flipkart</div>
+  <div class="platform-tag"><div class="platform-dot" style="background:#F43397"></div> Meesho</div>
+  <div class="platform-tag"><div class="platform-dot" style="background:#FF3F6C"></div> Myntra</div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-num">4+</div>
+    <div class="stat-label">Shopping Platforms Compared</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">₹500</div>
+    <div class="stat-label">Avg. Savings Per Purchase</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">Free — Always</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-tag">How It Works</div>
+  <div class="section-title">Simple as <em>1, 2, 3</em></div>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-icon">🔍</div>
+      <div class="step-title">Search a Product</div>
+      <div class="step-desc">Type what you're looking for — clothes, fan, mixer, earphones — anything your family needs.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-icon">📊</div>
+      <div class="step-title">We Compare Prices</div>
+      <div class="step-desc">BudgetFindr instantly checks Amazon, Flipkart, Meesho & Myntra and ranks by lowest price.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-icon">💰</div>
+      <div class="step-title">You Save Money</div>
+      <div class="step-desc">Click the best deal and go straight to the store. No account needed. 100% free.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES + MOCKUP -->
+<section class="section" id="features" style="max-width:1100px;">
+  <div class="section-tag">Features</div>
+  <div class="section-title">Everything a <em>Budget Family</em> Needs</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+    <div>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <div><div class="feature-title">Real-Time Price Comparison</div><div class="feature-desc">Live prices from all 4 platforms updated regularly so you never overpay.</div></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">💼</div>
+          <div><div class="feature-title">Budget Filter</div><div class="feature-desc">Set your max budget and only see products you can actually afford.</div></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🏆</div>
+          <div><div class="feature-title">Best Deal Badge</div><div class="feature-desc">We highlight the cheapest platform automatically — no math needed.</div></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📱</div>
+          <div><div class="feature-title">Works on Any Phone</div><div class="feature-desc">Fully mobile-friendly. No app download needed — just open in browser.</div></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔒</div>
+          <div><div class="feature-title">No Login Required</div><div class="feature-desc">Use it instantly. We never ask for your personal data or payment info.</div></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🆓</div>
+          <div><div class="feature-title">Forever Free</div><div class="feature-desc">BudgetFindr is completely free for all users. We earn through affiliate partnerships.</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Mockup -->
+    <div class="mockup">
+      <div class="mockup-header">
+        <div class="mockup-title">💸 BudgetFindr</div>
+        <div class="mockup-sub">Best prices · Amazon · Flipkart · Meesho · Myntra</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-product">
+          <div class="mockup-ribbon"><span>💰 Save ₹350</span><span>vs highest</span></div>
+          <div class="mockup-inner">
+            <div class="mockup-emoji">👕</div>
+            <div>
+              <div class="mockup-name">Men's Cotton Casual Shirt</div>
+              <div class="mockup-price">₹249 <span style="font-size:12px;color:var(--muted);font-family:'DM Sans'">on Meesho</span></div>
+              <div class="mockup-platforms">
+                <span class="mockup-tag" style="background:rgba(255,153,0,0.15);color:#FF9900">Amazon ₹349</span>
+                <span class="mockup-tag" style="background:rgba(40,116,240,0.15);color:#2874F0">Flipkart ₹299</span>
+                <span class="mockup-tag" style="background:rgba(0,212,170,0.15);color:var(--teal)">Meesho ₹249 ✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-product">
+          <div class="mockup-ribbon"><span>💰 Save ₹500</span><span>vs highest</span></div>
+          <div class="mockup-inner">
+            <div class="mockup-emoji">🍳</div>
+            <div>
+              <div class="mockup-name">Non-Stick Dosa Tawa 30cm</div>
+              <div class="mockup-price">₹479 <span style="font-size:12px;color:var(--muted);font-family:'DM Sans'">on Meesho</span></div>
+              <div class="mockup-platforms">
+                <span class="mockup-tag" style="background:rgba(255,153,0,0.15);color:#FF9900">Amazon ₹599</span>
+                <span class="mockup-tag" style="background:rgba(40,116,240,0.15);color:#2874F0">Flipkart ₹549</span>
+                <span class="mockup-tag" style="background:rgba(0,212,170,0.15);color:var(--teal)">Meesho ₹479 ✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--teal);border-radius:12px;padding:12px;text-align:center;font-family:'Syne',sans-serif;font-weight:700;color:var(--bg);font-size:14px;">🛒 Go to Meesho & Save ₹500</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCE -->
+<section class="section" id="audience">
+  <div class="section-tag">Who It's For</div>
+  <div class="section-title">Built for <em>Every Indian Family</em></div>
+  <div class="audience-grid">
+    <div class="audience-card">
+      <div class="audience-icon">👨‍👩‍👧‍👦</div>
+      <div class="audience-title">Families on a Budget</div>
+      <div class="audience-desc">Stretch your monthly shopping budget further with smarter price comparisons.</div>
+    </div>
+    <div class="audience-card">
+      <div class="audience-icon">🎓</div>
+      <div class="audience-title">Students</div>
+      <div class="audience-desc">Find the cheapest clothes and electronics without spending hours searching.</div>
+    </div>
+    <div class="audience-card">
+      <div class="audience-icon">🏡</div>
+      <div class="audience-title">Homemakers</div>
+      <div class="audience-desc">Best prices on kitchen items, appliances and home essentials — all in one place.</div>
+    </div>
+    <div class="audience-card">
+      <div class="audience-icon">🏘️</div>
+      <div class="audience-title">Small Town India</div>
+      <div class="audience-desc">Online shopping made simple — find real deals without needing tech knowledge.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section" id="app">
+  <div class="cta-glow"></div>
+  <div class="cta-title">Start Saving Money Today 💰</div>
+  <div class="cta-sub">Free forever. No sign-up. Works on any phone or computer.</div>
+  <a href="#" class="btn-primary" style="font-size:18px;padding:18px 40px;">🛒 Open BudgetFindr App</a>
+</div>
+
+<!-- CONTACT -->
+<section class="section" id="contact" style="text-align:center;max-width:600px;">
+  <div class="section-tag">Contact</div>
+  <div class="section-title">Get in <em>Touch</em></div>
+  <p style="color:var(--muted);line-height:1.8;margin-bottom:24px;">For affiliate partnerships, business inquiries, or feedback about BudgetFindr, reach out to us directly.</p>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:16px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,170,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📧</div>
+      <div style="text-align:left;"><div style="font-size:12px;color:var(--muted)">Email</div><div style="font-weight:600;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c6aea3aaaaa986a4b3a2a1a3b2a0afa8a2b4e8afa8">[email&#160;protected]</a></div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,170,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">🌐</div>
+      <div style="text-align:left;"><div style="font-size:12px;color:var(--muted)">Website</div><div style="font-weight:600;">www.budgetfindr.in</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,170,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📍</div>
+      <div style="text-align:left;"><div style="font-size:12px;color:var(--muted)">Based in</div><div style="font-weight:600;">India 🇮🇳</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- REAL PRODUCTS -->
+<section class="section" id="deals" style="max-width:1000px;">
+  <div class="section-tag">Live Amazon Deals</div>
+  <div class="section-title">Real Products, <em>Real Savings</em></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+
+    <a href="https://amzn.in/d/0cps4PPQ?tag=budgetfindr-21" target="_blank" style="text-decoration:none;">
+      <div class="feature" style="flex-direction:column;cursor:pointer;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="feature-icon">👕</div>
+          <div>
+            <div class="feature-title">Men's Cotton Casual Shirt</div>
+            <div style="color:#FF9900;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">₹395</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#FF9900;color:#000;text-align:center;padding:10px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">🛒 Buy on Amazon →</div>
+      </div>
+    </a>
+
+    <a href="https://amzn.in/d/00DQQpEo?tag=budgetfindr-21" target="_blank" style="text-decoration:none;">
+      <div class="feature" style="flex-direction:column;cursor:pointer;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="feature-icon">👘</div>
+          <div>
+            <div class="feature-title">Women's Kurti Set</div>
+            <div style="color:#FF9900;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">Best Price</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#FF9900;color:#000;text-align:center;padding:10px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">🛒 Buy on Amazon →</div>
+      </div>
+    </a>
+
+    <a href="https://amzn.in/d/08O9H1O0?tag=budgetfindr-21" target="_blank" style="text-decoration:none;">
+      <div class="feature" style="flex-direction:column;cursor:pointer;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="feature-icon">🍳</div>
+          <div>
+            <div class="feature-title">Non-Stick Tawa</div>
+            <div style="color:#FF9900;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">Best Price</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#FF9900;color:#000;text-align:center;padding:10px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">🛒 Buy on Amazon →</div>
+      </div>
+    </a>
+
+    <a href="https://amzn.in/d/0awMX3NU?tag=budgetfindr-21" target="_blank" style="text-decoration:none;">
+      <div class="feature" style="flex-direction:column;cursor:pointer;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="feature-icon">🔋</div>
+          <div>
+            <div class="feature-title">Power Bank 10000mAh</div>
+            <div style="color:#FF9900;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">Best Price</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#FF9900;color:#000;text-align:center;padding:10px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">🛒 Buy on Amazon →</div>
+      </div>
+    </a>
+
+    <a href="https://amzn.in/d/05EHh7dS?tag=budgetfindr-21" target="_blank" style="text-decoration:none;">
+      <div class="feature" style="flex-direction:column;cursor:pointer;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="feature-icon">🌀</div>
+          <div>
+            <div class="feature-title">Table Fan</div>
+            <div style="color:#FF9900;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">Best Price</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#FF9900;color:#000;text-align:center;padding:10px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">🛒 Buy on Amazon →</div>
+      </div>
+    </a>
+
+    <a href="https://amzn.in/d/0fK5k9Wr?tag=budgetfindr-21" target="_blank" style="text-decoration:none;">
+      <div class="feature" style="flex-direction:column;cursor:pointer;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="feature-icon">🎧</div>
+          <div>
+            <div class="feature-title">Bluetooth Earphones</div>
+            <div style="color:#FF9900;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">Best Price</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#FF9900;color:#000;text-align:center;padding:10px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">🛒 Buy on Amazon →</div>
+      </div>
+    </a>
+
+    <a href="https://amzn.in/d/01rvAxFW?tag=budgetfindr-21" target="_blank" style="text-decoration:none;">
+      <div class="feature" style="flex-direction:column;cursor:pointer;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="feature-icon">🍱</div>
+          <div>
+            <div class="feature-title">Steel Tiffin Box Set</div>
+            <div style="color:#FF9900;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;">Best Price</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#FF9900;color:#000;text-align:center;padding:10px;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;">🛒 Buy on Amazon →</div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">BudgetFindr</div>
+  <div class="footer-links">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Use</a>
+    <a href="#">Affiliate Disclosure</a>
+    <a href="#contact">
