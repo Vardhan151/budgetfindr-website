@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BudgetFindr — India's Smartest Budget Shopping Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#00D4AA"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="BudgetFindr"/>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});}</script>
+<style>
+  :root {
+    --teal: #00D4AA; --teal2: #00A882; --bg: #080E14; --card: #0F1923;
+    --card2: #162030; --text: #EDF2F7; --muted: #6B8FAE; --border: #1A2D40;
+    --amazon: #FF9900; --meesho: #F43397; --myntra: #FF3F6C; --ajio: #E31837;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 6vw; background: rgba(8,14,20,0.92); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--teal); }
+  .logo span { color: var(--text); }
+  .nav-links { display: flex; gap: 24px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--teal); }
+  .nav-cta { background: var(--teal); color: var(--bg); border: none; padding: 10px 20px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; }
+
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 120px 6vw 80px; position: relative; overflow: hidden;
+  }
+  .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(0,212,170,0.12) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; opacity: 0.3; mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3); color: var(--teal); padding: 8px 18px; border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 28px; }
+  .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(34px, 7vw, 68px); font-weight: 800; line-height: 1.1; margin-bottom: 22px; }
+  .hero h1 em { color: var(--teal); font-style: normal; }
+  .hero p { font-size: clamp(15px, 2vw, 18px); color: var(--muted); max-width: 560px; line-height: 1.7; margin-bottom: 36px; }
+  .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--teal); color: var(--bg); border: none; padding: 15px 30px; border-radius: 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+  .btn-primary:hover { background: var(--teal2); transform: translateY(-2px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1.5px solid var(--border); padding: 15px 30px; border-radius: 14px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+  .btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+
+  .platforms { display: flex; justify-content: center; align-items: center; gap: 32px; flex-wrap: wrap; padding: 36px 6vw; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .platform-tag { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; font-weight: 600; }
+  .platform-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; padding: 70px 6vw; max-width: 900px; margin: 0 auto; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+  .stat-card:hover { transform: translateY(-4px); border-color: var(--teal); }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; color: var(--teal); }
+  .stat-label { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  .section { padding: 70px 6vw; max-width: 1000px; margin: 0 auto; }
+  .section-tag { color: var(--teal); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: clamp(26px, 4vw, 42px); font-weight: 800; margin-bottom: 44px; }
+  .section-title em { color: var(--teal); font-style: normal; }
+
+  /* COMPARE APP */
+  #compare { padding: 70px 6vw; background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .compare-inner { max-width: 1000px; margin: 0 auto; }
+  .compare-search { width: 100%; padding: 14px 20px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 16px; font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 20px; transition: border-color 0.2s; }
+  .compare-search:focus { border-color: var(--teal); }
+  .cat-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .cat-tab { padding: 8px 18px; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .cat-tab.active { background: var(--teal); color: var(--bg); border-color: var(--teal); }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .product-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: 18px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
+  .product-card:hover { border-color: var(--teal); transform: translateY(-3px); }
+  .card-header { padding: 16px 18px 10px; display: flex; gap: 14px; align-items: center; }
+  .card-emoji { width: 48px; height: 48px; border-radius: 12px; background: rgba(0,212,170,0.1); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .card-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+  .card-cat { font-size: 11px; color: var(--muted); margin-top: 3px; text-transform: capitalize; }
+  .best-badge { margin: 0 18px 12px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3); border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .best-platform { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--teal); }
+  .best-save { font-size: 12px; color: var(--muted); }
+  .prices-list { padding: 0 18px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .price-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 10px; border: 1.5px solid transparent; transition: all 0.2s; }
+  .price-row.best-row { border-color: var(--teal); background: rgba(0,212,170,0.06); }
+  .platform-info { display: flex; align-items: center; gap: 8px; }
+  .platform-name { font-size: 13px; font-weight: 600; }
+  .best-tag { background: var(--teal); color: var(--bg); font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+  .price-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
+  .buy-btn { display: block; margin: 0 18px 18px; padding: 11px; border-radius: 12px; background: var(--amazon); color: #000; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; text-align: center; text-decoration: none; transition: opacity 0.2s; }
+  .buy-btn:hover { opacity: 0.85; }
+
+  /* REAL PRODUCTS */
+  .real-products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .rp-card { background: var(--card2); border: 1px solid var(--border); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px; transition: border-color 0.2s; text-decoration: none; color: var(--text); }
+  .rp-card:hover { border-color: var(--teal); }
+  .rp-top { display: flex; gap: 12px; align-items: center; }
+  .rp-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(0,212,170,0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .rp-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+  .rp-price { color: var(--amazon); font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+  .rp-btn { background: var(--amazon); color: #000; text-align: center; padding: 10px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; }
+
+  .cta-section { margin: 0 6vw 70px; border-radius: 28px; padding: 56px 36px; text-align: center; background: linear-gradient(135deg, rgba(0,212,170,0.12) 0%, rgba(0,168,130,0.06) 100%); border: 1px solid rgba(0,212,170,0.2); position: relative; overflow: hidden; }
+  .cta-title { font-family: 'Syne', sans-serif; font-size: clamp(22px, 4vw, 38px); font-weight: 800; margin-bottom: 14px; }
+  .cta-sub { color: var(--muted); font-size: 16px; margin-bottom: 28px; }
+
+  footer { border-top: 1px solid var(--border); padding: 36px 6vw; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-logo { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--teal); }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--teal); }
+  .footer-copy { color: var(--muted); font-size: 12px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .stats .stat-card:last-child { grid-column: span 2; }
+    footer { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Budget<span>Findr</span></div>
+  <ul class="nav-links">
+    <li><a href="#compare">Compare</a></li>
+    <li><a href="#deals">Deals</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('compare').scrollIntoView({behavior:'smooth'})">Compare Now →</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="badge">🇮🇳 Made for Indian Families</div>
+  <h1>Find the Lowest Price<br/><em>Across Every Platform</em></h1>
+  <p>Compare prices on Amazon, Meesho, Myntra & Ajio instantly. Save money on every purchase — clothes, electronics, kitchen & more!</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="#compare">Compare Prices →</a>
+    <a class="btn-secondary" href="#deals">View Deals</a>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<div class="platforms">
+  <div class="platform-tag"><div class="platform-dot" style="background:#FF9900"></div>Amazon</div>
+  <div class="platform-tag"><div class="platform-dot" style="background:#F43397"></div>Meesho</div>
+  <div class="platform-tag"><div class="platform-dot" style="background:#FF3F6C"></div>Myntra</div>
+  <div class="platform-tag"><div class="platform-dot" style="background:#E31837"></div>Ajio</div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-card"><div class="stat-num">4+</div><div class="stat-label">Platforms Compared</div></div>
+  <div class="stat-card"><div class="stat-num">₹500</div><div class="stat-label">Avg. Monthly Savings</div></div>
+  <div class="stat-card"><div class="stat-num">100%</div><div class="stat-label">Free Forever</div></div>
+</div>
+
+<!-- COMPARE APP -->
+<section id="compare">
+  <div class="compare-inner">
+    <div class="section-tag">Price Comparison</div>
+    <div class="section-title">Compare Prices, <em>Save More</em></div>
+    <input class="compare-search" type="text" placeholder="🔍 Search products..." oninput="filterProducts(this.value)" id="searchInput"/>
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="setCategory('all',this)">🏠 All</button>
+      <button class="cat-tab" onclick="setCategory('clothes',this)">👕 Clothes</button>
+      <button class="cat-tab" onclick="setCategory('appliances',this)">🔌 Appliances</button>
+      <button class="cat-tab" onclick="setCategory('electronics',this)">📱 Electronics</button>
+      <button class="cat-tab" onclick="setCategory('kitchen',this)">🍳 Kitchen</button>
+    </div>
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
+</section>
+
+<!-- REAL AMAZON DEALS -->
+<section class="section" id="deals">
+  <div class="section-tag">Live Amazon Deals</div>
+  <div class="section-title">Real Products, <em>Real Savings</em></div>
+  <div class="real-products-grid">
+    <a class="rp-card" href="https://amzn.in/d/0cps4PPQ?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">👕</div><div><div class="rp-name">Men's Cotton Casual Shirt</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/00DQQpEo?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🍳</div><div><div class="rp-name">Non-Stick Tawa</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/08O9H1O0?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🎧</div><div><div class="rp-name">Earbuds</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/0awMX3NU?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🔋</div><div><div class="rp-name">Power Bank 10000mAh</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/05EHh7dS?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🌀</div><div><div class="rp-name">Table Fan</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/0fK5k9Wr?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🍱</div><div><div class="rp-name">Lunch Box</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/01rvAxFW?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🎵</div><div><div class="rp-name">Neckband Bluetooth</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/0ior9kON?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">👗</div><div><div class="rp-name">Kurti for Women</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/0fJhWOep?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🔥</div><div><div class="rp-name">Room Heater 800W</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/0je1Maou?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">👖</div><div><div class="rp-name">Leggings for Women</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/04rgJ3Gi?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">👖</div><div><div class="rp-name">Fit Leggings for Women</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/05Oz5JnI?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🌿</div><div><div class="rp-name">Almond Hair Oil</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+    <a class="rp-card" href="https://amzn.in/d/0d6KCdxq?tag=budgetfindr-21" target="_blank">
+      <div class="rp-top"><div class="rp-icon">🌱</div><div><div class="rp-name">Rosemary Hair Oil</div><div class="rp-price">Best Price</div></div></div>
+      <div class="rp-btn">🛒 Buy on Amazon →</div>
+    </a>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-title">Start Saving Money Today 💸</div>
+  <div class="cta-sub">Join thousands of Indian families finding the best deals every day</div>
+  <a class="btn-primary" href="#compare">Compare Prices Now →</a>
+</div>
+
+<!-- CONTACT -->
+<section class="section" id="contact" style="padding-top:0">
+  <div class="section-tag">Get In Touch</div>
+  <div class="section-title">Contact <em>Us</em></div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;gap:12px;align-items:center">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,170,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">📧</div>
+      <div><div style="font-size:12px;color:var(--muted)">Email</div><div style="font-weight:600">hello@budgetfindr.in</div></div>
+    </div>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;gap:12px;align-items:center">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,170,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">🌐</div>
+      <div><div style="font-size:12px;color:var(--muted)">Website</div><div style="font-weight:600">www.budgetfindr.in</div></div>
+    </div>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;gap:12px;align-items:center">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,170,0.1);display:flex;align-items:center;justify-content:center;font-size:18px">📍</div>
+      <div><div style="font-size:12px;color:var(--muted)">Based in</div><div style="font-weight:600">India 🇮🇳</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">BudgetFindr</div>
+  <div class="footer-links">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Use</a>
+    <a href="#">Affiliate Disclosure</a>
+  </div>
+  <div class="footer-copy">© 2025 BudgetFindr. Amazon Associate ID: budgetfindr-21</div>
+</footer>
+
+<script>
+const PLATFORMS = {
+  Amazon: { color: '#FF9900', icon: '🛒' },
+  Meesho: { color: '#F43397', icon: '👜' },
+  Myntra: { color: '#FF3F6C', icon: '👗' },
+  Ajio:   { color: '#E31837', icon: '🏷️' },
+};
+
+const PRODUCTS = [
+  { id:1, name:"Men's Cotton Casual Shirt", category:"clothes", icon:"👕", prices:{ Amazon:349, Meesho:249, Myntra:399, Ajio:329 } },
+  { id:2, name:"Women's Kurti Set (Pack of 3)", category:"clothes", icon:"👘", prices:{ Amazon:599, Meesho:449, Myntra:699, Ajio:579 } },
+  { id:3, name:"Kids School Uniform Set", category:"clothes", icon:"🎒", prices:{ Amazon:449, Meesho:349, Myntra:499, Ajio:429 } },
+  { id:4, name:"Men's Track Pants", category:"clothes", icon:"👖", prices:{ Amazon:299, Meesho:199, Myntra:349, Ajio:279 } },
+  { id:5, name:"Women's Saree (Cotton)", category:"clothes", icon:"🧣", prices:{ Amazon:799, Meesho:599, Myntra:899, Ajio:749 } },
+  { id:6, name:"Boys T-Shirt Pack of 5", category:"clothes", icon:"👦", prices:{ Amazon:499, Meesho:379, Myntra:549, Ajio:469 } },
+  { id:7, name:"Table Fan (400mm)", category:"appliances", icon:"🌀", prices:{ Amazon:1299, Meesho:1099 } },
+  { id:8, name:"Electric Iron (1000W)", category:"appliances", icon:"🔌", prices:{ Amazon:649, Meesho:549 } },
+  { id:9, name:"Room Heater (800W)", category:"appliances", icon:"🔥", prices:{ Amazon:1499, Meesho:1249 } },
+  { id:10, name:"Ceiling Fan with Regulator", category:"appliances", icon:"💨", prices:{ Amazon:1899, Meesho:1599 } },
+  { id:11, name:"Bluetooth Earphones", category:"electronics", icon:"🎧", prices:{ Amazon:799, Meesho:649, Myntra:899, Ajio:769 } },
+  { id:12, name:"Power Bank 10000mAh", category:"electronics", icon:"🔋", prices:{ Amazon:999, Meesho:799 } },
+  { id:13, name:"LED Night Lamp (USB)", category:"electronics", icon:"💡", prices:{ Amazon:249, Meesho:179 } },
+  { id:14, name:"Mobile Stand Holder", category:"electronics", icon:"📱", prices:{ Amazon:199, Meesho:139 } },
+  { id:15, name:"USB Data Cable (3 pack)", category:"electronics", icon:"🔌", prices:{ Amazon:299, Meesho:199 } },
+  { id:16, name:"Stainless Steel Tiffin Box", category:"kitchen", icon:"🍱", prices:{ Amazon:499, Meesho:379 } },
+  { id:17, name:"Non-Stick Dosa Tawa 30cm", category:"kitchen", icon:"🍳", prices:{ Amazon:599, Meesho:479 } },
+  { id:18, name:"Pressure Cooker 3L", category:"kitchen", icon:"🥘", prices:{ Amazon:1199, Meesho:949 } },
+  { id:19, name:"Water Bottle 1L (Pack of 3)", category:"kitchen", icon:"🍶", prices:{ Amazon:349, Meesho:269 } },
+  { id:20, name:"Mixer Grinder 500W", category:"kitchen", icon:"🌀", prices:{ Amazon:2499, Meesho:1999 } },
+];
+
+let currentCategory = 'all';
+let currentSearch = '';
+
+function setCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts();
+}
+
+function filterProducts(val) {
+  currentSearch = val.toLowerCase();
+  renderProducts();
+}
+
+function renderProducts() {
+  const grid = document.getElementById('productsGrid');
+  const filtered = PRODUCTS.filter(p => {
+    const matchCat = currentCategory === 'all' || p.category === currentCategory;
+    const matchSearch = p.name.toLowerCase().includes(currentSearch);
+    return matchCat && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1">No products found 😕</div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => {
+    const entries = Object.entries(p.prices);
+    const minPrice = Math.min(...entries.map(([,v]) => v));
+    const maxPrice = Math.max(...entries.map(([,v]) => v));
+    const bestPlatform = entries.find(([,v]) => v === minPrice)[0];
+    const savings = maxPrice - minPrice;
+
+    const priceRows = entries.map(([name, price]) => {
+      const isBest = name === bestPlatform;
+      const pl = PLATFORMS[name];
+      return `<div class="price-row ${isBest ? 'best-row' : ''}">
+        <div class="platform-info">
+          <span>${pl.icon}</span>
+          <span class="platform-name" style="color:${pl.color}">${name}</span>
+          ${isBest ? '<span class="best-tag">BEST</span>' : ''}
+        </div>
+        <span class="price-val" style="color:${isBest ? '#00D4AA' : 'var(--text)'}">₹${price}</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="product-card">
+      <div class="card-header">
+        <div class="card-emoji">${p.icon}</div>
+        <div>
+          <div class="card-name">${p.name}</div>
+          <div class="card-cat">${p.category}</div>
+        </div>
+      </div>
+      <div class="best-badge">
+        <div class="best-platform">🏆 Best: ${bestPlatform} — ₹${minPrice}</div>
+        <div class="best-save">Save ₹${savings}</div>
+      </div>
+      <div class="prices-list">${priceRows}</div>
+      <a class="buy-btn" href="https://www.amazon.in/s?k=${encodeURIComponent(p.name)}&tag=budgetfindr-21" target="_blank">🛒 Buy on Amazon →</a>
+    </div>`;
+  }).join('');
+}
+
+renderProducts();
+</script>
+</body>
+</html>
